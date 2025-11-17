@@ -1,16 +1,13 @@
 package com.hogwarts.wiz.artifact;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hogwarts.wiz.system.StatusCode;
-import org.awaitility.Awaitility;
+import com.hogwarts.wiz.system.expection.ObjectNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -21,7 +18,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -113,7 +109,7 @@ class ArtifactControllerTest {
     @Test
     void findArtifactByIdNotFound() throws Exception {
         //given
-        given(this.artifactService.findById("1250808601744904191")).willThrow(new ArtifactNotFoundException(("1250808601744904191")));
+        given(this.artifactService.findById("1250808601744904191")).willThrow(new ObjectNotFoundException("artifact", "1250808601744904191"));
         //when & Then
         this.mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/artifact/1250808601744904191").accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))
@@ -189,7 +185,7 @@ class ArtifactControllerTest {
                 null);
         String jsonString = this.objectMapper.writeValueAsString(artifactDTO);
 
-        given(this.artifactService.updateArtifact(eq("1250808601744904192"),Mockito.any(Artifact.class))).willThrow(new ArtifactNotFoundException("1250808601744904192"));
+        given(this.artifactService.updateArtifact(eq("1250808601744904192"),Mockito.any(Artifact.class))).willThrow(new ObjectNotFoundException("artifact", "1250808601744904192"));
         //when & then
         this.mockMvc.perform(put("/api/v1/artifact/" + "1250808601744904192").contentType(MediaType.APPLICATION_JSON).content(jsonString).accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))
@@ -213,7 +209,7 @@ class ArtifactControllerTest {
     @Test
     void testDeleteArtifactErrWithNonExistingId() throws Exception {
         //given
-        doThrow(new ArtifactNotFoundException("1250808601744904192")).when(this.artifactService).delete("1250808601744904192");
+        doThrow(new ObjectNotFoundException("artifact", "1250808601744904192")).when(this.artifactService).delete("1250808601744904192");
         //when & then
         this.mockMvc.perform(delete("/api/v1/artifact/" + "1250808601744904192").accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))

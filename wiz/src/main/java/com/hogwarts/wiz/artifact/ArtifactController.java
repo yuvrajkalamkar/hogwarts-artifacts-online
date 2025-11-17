@@ -34,7 +34,7 @@ public class ArtifactController {
     @GetMapping
     public Result findAllArtifacts(){
         List<Artifact> foundArtifacts = this.artifactService.findAll();
-        return new Result(true, StatusCode.SUCCESS, "Find One Success", this.artifactToArtifactDtoConverter.convertList(foundArtifacts));
+        return new Result(true, StatusCode.SUCCESS, "Find All Success", this.artifactToArtifactDtoConverter.convertList(foundArtifacts));
     }
     @PostMapping
     public Result addArtifact(@Valid @RequestBody ArtifactDTO artifactDTO){

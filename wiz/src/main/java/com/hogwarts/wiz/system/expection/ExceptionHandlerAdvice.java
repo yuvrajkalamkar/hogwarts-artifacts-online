@@ -3,6 +3,7 @@ package com.hogwarts.wiz.system.expection;
 import com.hogwarts.wiz.artifact.ArtifactNotFoundException;
 import com.hogwarts.wiz.system.Result;
 import com.hogwarts.wiz.system.StatusCode;
+import com.hogwarts.wiz.wizard.WizardNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -20,6 +21,13 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
+
+    @ExceptionHandler(ObjectNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    Result handleObjectNotFoundException(ObjectNotFoundException ex) {
+        return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(ArtifactNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     Result handleArtifactNotFoundException(ArtifactNotFoundException ex){
@@ -42,5 +50,11 @@ public class ExceptionHandlerAdvice {
             map.put(key, val);
         });
         return new Result(false, StatusCode.INVALID_ARGUMENT, "Provided arguments are invalid, see data for details.", map);
+    }
+
+    @ExceptionHandler(WizardNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    Result handleWizardNotFoundException(WizardNotFoundException ex){
+        return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
     }
 }
