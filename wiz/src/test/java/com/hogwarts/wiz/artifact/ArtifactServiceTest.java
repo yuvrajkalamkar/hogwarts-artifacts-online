@@ -1,9 +1,9 @@
 package com.hogwarts.wiz.artifact;
 
 import com.hogwarts.wiz.artifact.utils.IdWorker;
+import com.hogwarts.wiz.system.expection.ObjectNotFoundException;
 import com.hogwarts.wiz.wizard.Wizard;
 import org.assertj.core.api.Assertions;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,8 +35,25 @@ class ArtifactServiceTest {
     @InjectMocks
     ArtifactService artifactService;
 
+    List<Artifact> artifacts;
+
     @BeforeEach
     void setUp() {
+        Artifact a1 = new Artifact();
+        a1.setId("1250808601744904191");
+        a1.setName("Deluminator");
+        a1.setDescription("A Deluminator is a device invented by Albus Dumbledore that resembles a cigarette lighter. It is used to remove or absorb (as well as return) the light from any light source to provide cover to the user.");
+        a1.setImageUrl("imageUrl");
+
+        Artifact a2 = new Artifact();
+        a2.setId("1250808601744904192");
+        a2.setName("Invisibility Cloak");
+        a2.setDescription("An invisibility cloak is used to make the wearer invisible.");
+        a2.setImageUrl("imageUrl");
+
+        this.artifacts = new ArrayList<>();
+        this.artifacts.add(a1);
+        this.artifacts.add(a2);
     }
 
     @AfterEach
@@ -74,7 +93,7 @@ class ArtifactServiceTest {
         });
         //then
         assertThat(throwable)
-                .isInstanceOf(ArtifactNotFoundException.class)
+                .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Could not find artifact with id: 1250808601744904192");
         verify(artifactRepository, times(1)).findById("1250808601744904192");
     }
@@ -133,7 +152,7 @@ class ArtifactServiceTest {
         given(this.artifactRepository.findById("1250808601744904192")).willReturn(Optional.empty());
         //when
         //then
-        assertThrows(ArtifactNotFoundException.class, () ->{
+        assertThrows(ObjectNotFoundException.class, () ->{
             artifactService.updateArtifact("1250808601744904192", oldArtifact);
         });
     }
@@ -157,10 +176,22 @@ class ArtifactServiceTest {
         //given
         given(this.artifactRepository.findById("1250808601744904192")).willReturn(Optional.empty());
         //when
-        assertThrows(ArtifactNotFoundException.class, () ->{
+        assertThrows(ObjectNotFoundException.class, () ->{
             artifactService.delete("1250808601744904192");
         });
         //then
         verify(artifactRepository, times(1)).findById("1250808601744904192");
+    }
+    @Test
+    void testFindAllSuccess() {
+        // Given
+        given(this.artifactRepository.findAll()).willReturn(this.artifacts);
+
+        // When
+        List<Artifact> actualArtifacts = this.artifactService.findAll();
+
+        // Then
+        assertThat(actualArtifacts.size()).isEqualTo(this.artifacts.size());
+        verify(this.artifactRepository, times(1)).findAll();
     }
 }
